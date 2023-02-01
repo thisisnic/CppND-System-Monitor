@@ -22,7 +22,6 @@ System::System(){
     kernel_ = LinuxParser::Kernel();
 }
 
-// TODO: Return the system's CPU
 Processor& System::Cpu() {
     return cpu_;
 }
@@ -30,8 +29,6 @@ Processor& System::Cpu() {
 // TODO: Return a container composed of the system's processes
 vector<Process>& System::Processes() { return processes_; }
 
-// TODO: Return the system's kernel identifier (string)
-// this will be in /proc/version
 std::string System::Kernel() {
     return kernel_;
 }
@@ -60,4 +57,6 @@ int System::TotalProcesses() { return 0; }
 // This file contains two numbers (values in seconds):
 // 1) the uptime of the system (including time spent in suspend) 
 // 2) the amount of time spent in the idle process.
-long int System::UpTime() { return 0; }
+long int System::UpTime() {
+    return LinuxParser::UpTime(); 
+}
