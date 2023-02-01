@@ -19,17 +19,22 @@ You need to properly format the uptime. Refer to the comments mentioned in forma
 
 System::System(){
     os_ = LinuxParser::OperatingSystem();
+    kernel_ = LinuxParser::Kernel();
 }
 
 // TODO: Return the system's CPU
-Processor& System::Cpu() { return cpu_; }
+Processor& System::Cpu() {
+    return cpu_;
+}
 
 // TODO: Return a container composed of the system's processes
 vector<Process>& System::Processes() { return processes_; }
 
 // TODO: Return the system's kernel identifier (string)
 // this will be in /proc/version
-std::string System::Kernel() { return string(); }
+std::string System::Kernel() {
+    return kernel_;
+}
 
 // TODO: Return the system's memory utilization
 // this will be in /proc/meminfo
