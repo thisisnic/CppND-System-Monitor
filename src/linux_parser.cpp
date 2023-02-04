@@ -74,7 +74,7 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-// TODO: Read and return the system memory utilization
+// Done: Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() {
   int mem_total = LinuxParser::Meminfo("MemTotal");
   int mem_used = mem_total - LinuxParser::Meminfo("MemFree");
@@ -133,13 +133,32 @@ int LinuxParser::Meminfo(std::string row){
   return 0;
 }
 
-// TODO: Read and return the total number of processes
-int LinuxParser::TotalProcesses() { 
-  return 0; 
+int LinuxParser::Stat(string row){
+  std::string line;
+  std::string key;
+  std::string value;
+  std::ifstream filestream(kProcDirectory + kStatFilename);
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      int pos = line.find(" ");              
+      key = line.substr(0, pos);         
+      value = line.substr(pos+1);   
+      if(key == row){
+        return(std::stoi(value));
+      }
+      
+    }
+  }
+  return 0;
 }
 
-// TODO: Read and return the number of running processes
-int LinuxParser::RunningProcesses() { return 0; }
+int LinuxParser::TotalProcesses() { 
+  return LinuxParser::Stat("processes");
+}
+
+int LinuxParser::RunningProcesses() {
+  return LinuxParser::Stat("procs_running");
+}
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
