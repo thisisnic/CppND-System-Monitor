@@ -12,6 +12,7 @@ using std::string;
 using std::to_string;
 using std::vector;
 using std::stol;
+using std::getline;
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
@@ -108,7 +109,22 @@ long LinuxParser::ActiveJiffies() { return 0; }
 long LinuxParser::IdleJiffies() { return 0; }
 
 // TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+vector<string> LinuxParser::CpuUtilization() {
+
+  vector<std::string> utilization;
+  std::string cpu = LinuxParser::Stat("cpu");
+  std::stringstream ss(cpu);
+  std::string tmp;
+  char delim = ' ';
+  while(std::getline(ss, tmp, delim)){
+    if(tmp!= ""){
+      utilization.push_back(tmp);
+    }
+    
+  }
+  
+  return utilization;
+}
 
 int LinuxParser::Meminfo(std::string row){
   vector<int> p;
@@ -133,7 +149,7 @@ int LinuxParser::Meminfo(std::string row){
   return 0;
 }
 
-int LinuxParser::Stat(string row){
+std::string LinuxParser::Stat(string row){
   std::string line;
   std::string key;
   std::string value;
@@ -144,20 +160,20 @@ int LinuxParser::Stat(string row){
       key = line.substr(0, pos);         
       value = line.substr(pos+1);   
       if(key == row){
-        return(std::stoi(value));
+        return value;
       }
       
     }
   }
-  return 0;
+  return "";
 }
 
 int LinuxParser::TotalProcesses() { 
-  return LinuxParser::Stat("processes");
+  return std::stoi(LinuxParser::Stat("processes"));
 }
 
 int LinuxParser::RunningProcesses() {
-  return LinuxParser::Stat("procs_running");
+  return std::stoi(LinuxParser::Stat("procs_running"));
 }
 
 // TODO: Read and return the command associated with a process

@@ -34,9 +34,6 @@ std::string System::Kernel() {
     return kernel_;
 }
 
-// TODO: Return the system's memory utilization
-// this will be in /proc/meminfo
-// there are links on item 7 in project lectures ("System Data") about how to calc this
 float System::MemoryUtilization() {
     return LinuxParser::MemoryUtilization();
 }

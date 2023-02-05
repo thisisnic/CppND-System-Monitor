@@ -24,7 +24,7 @@ float MemoryUtilization();
 long UpTime();
 std::vector<int> Pids();
 int Meminfo(std::string row);
-int Stat(std::string row);
+std::string Stat(std::string row);
 int TotalProcesses();
 int RunningProcesses();
 std::string OperatingSystem();
