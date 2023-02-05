@@ -78,7 +78,11 @@ vector<int> LinuxParser::Pids() {
 // Done: Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() {
   int mem_total = LinuxParser::Meminfo("MemTotal");
-  int mem_used = mem_total - LinuxParser::Meminfo("MemFree");
+  int mem_used = (
+    mem_total - LinuxParser::Meminfo("MemFree") - 
+      LinuxParser::Meminfo("Buffers") - LinuxParser::Meminfo("Cached") - 
+      LinuxParser::Meminfo("Slab")
+  );
   return (float) mem_used / (float) mem_total;
 }
 
@@ -176,9 +180,14 @@ int LinuxParser::RunningProcesses() {
   return std::stoi(LinuxParser::Stat("procs_running"));
 }
 
-// TODO: Read and return the command associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Command(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Command(int pid) {
+  string line;
+  std::ifstream stream(kProcDirectory + "/" + std::to_string(pid) + "/" + kCmdlineFilename);
+  if (stream.is_open()) {
+    std::getline(stream, line);
+  }
+  return line;
+}
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
@@ -190,7 +199,30 @@ string LinuxParser::Uid(int pid[[maybe_unused]]) { return string(); }
 
 // TODO: Read and return the user associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::User(int pid) {
+  std::string line;
+  std::string key;
+  std::string value;
+  std::ifstream filestream(kProcDirectory + "/" + 
+    std::to_string(pid) + "/" + kStatusFilename
+  );
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      int pos = line.find(":");              
+      key = line.substr(0, pos);         
+      value = line.substr(pos+1);  
+      if(key == "Uid"){
+        int first_digit = value.find_first_not_of('\t');
+        std::string trimmed = value.substr(first_digit);
+        int last_digit = trimmed.find_first_of('\t');
+        trimmed = trimmed.substr(0, last_digit);
+        return trimmed;
+      }
+      
+    }
+  }
+  return "";
+}
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
