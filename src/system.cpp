@@ -27,14 +27,23 @@ Processor& System::Cpu() {
     return cpu_;
 }
 
+bool CompareUtilization(Process& a, Process& b){
+  return (a.CpuUtilization() > b.CpuUtilization());
+}
+
+
 // TODO: Return a container composed of the system's processes
 vector<Process>& System::Processes() {
-
+    vector<Process> ps;
     vector<int> pids = LinuxParser::Pids();
     for(auto pid: pids){
         Process p = Process(pid);
-        processes_.push_back(p);
+        ps.push_back(p);
     }
+
+    sort(ps.begin(), ps.end(), CompareUtilization);
+
+    processes_ = ps;
 
     return processes_;
 }

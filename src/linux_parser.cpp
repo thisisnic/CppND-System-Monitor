@@ -225,25 +225,23 @@ string LinuxParser::User(int pid) {
   std::string username = "";
   std::string line;
   std::ifstream filestream("/etc/passwd");
-  try {
-    if (filestream.is_open()) {
-      while (std::getline(filestream, line)) {
-        int pos = line.find(":x:") + 3;
-        std::string trimmed = line.substr(pos);
-        int pos2 = trimmed.find(":");
-        
-        int id = std::stoi(trimmed.substr(0,pos2));
 
-        if(id == std::stoi(uid)){
-          int last_letter = line.find(":");
-          username = line.substr(0, last_letter);
-        }     
-      }
+
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      int pos = line.find(":x:") + 3;
+      std::string trimmed = line.substr(pos);
+      int pos2 = trimmed.find(":");
+      
+      int id = std::stoi(trimmed.substr(0,pos2));
+
+      if(id == std::stoi(uid)){
+        int last_letter = line.find(":");
+        username = line.substr(0, last_letter);
+      }     
     }
   }
-  catch(...){
-
-  }
+  
   
   return username;
 }
