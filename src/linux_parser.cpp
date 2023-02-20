@@ -124,10 +124,58 @@ vector<string> LinuxParser::CpuUtilization() {
     if(tmp!= ""){
       utilization.push_back(tmp);
     }
-    
   }
   
   return utilization;
+}
+
+std::vector<std::string> LinuxParser::StatProcess(int pid){
+
+  vector<std::string> utilization;
+  std::string line;
+  std::ifstream stream(kProcDirectory + std::to_string(pid) + kStatFilename);
+  if (stream.is_open()) {
+    while (std::getline(stream, line)) {
+      int pos = line.find(")");
+      std::string after = line.substr(pos+1);
+      std::stringstream ss(after);
+      std::string tmp;
+      char delim = ' ';
+      while (std::getline(ss, tmp, delim)){
+        if(tmp!= ""){
+          utilization.push_back(tmp);
+        }
+      }
+    }
+  }
+
+  return utilization;
+}
+
+
+float LinuxParser::CpuUtilization(int pid) {
+  float cpu;
+  string line;
+
+  vector<std::string> utilization = LinuxParser::StatProcess(pid);
+
+  long uptime = LinuxParser::UpTime();
+
+  long utime = std::stol(utilization.at(14));
+  long stime = std::stol(utilization.at(15));
+  long cutime = std::stol(utilization.at(16));
+  long cstime = std::stol(utilization.at(17));
+
+  long starttime = std::stol(utilization.at(22));
+  long Hertz = sysconf(_SC_CLK_TCK);
+
+  // add total time including child processes
+  long total_time = utime + stime + cutime + cstime;
+  long seconds = uptime - (starttime / Hertz);
+  float cpu_usage = 100 * ((total_time / Hertz) / seconds);
+
+  return cpu_usage;
+
 }
 
 int LinuxParser::Meminfo(std::string row){
@@ -190,11 +238,31 @@ string LinuxParser::Command(int pid) {
 }
 
 // TODO: Read and return the memory used by a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Ram(int pid) {
+  std::string line;
+  std::string key;
+  std::string value;
+  std::ifstream filestream(kProcDirectory + std::to_string(pid) + kStatusFilename);
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      int pos = line.find(":");              
+      key = line.substr(0, pos);         
+      value = line.substr(pos+1);   
+      if(key == "VmSize"){
+        try{
+          int first_digit = value.find_first_not_of('\t');
+          std::string trimmed = value.substr(first_digit);
+          int mb = std::stoi(trimmed)*0.001;
+          return std::to_string(mb);
+        } catch(const std::exception& e){
+          return "0";
+        }
+      }
+    }
+  }
+}
 
 // TODO: Read and return the user ID associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Uid(int pid) {
   std::string line;
   std::string key;
@@ -229,23 +297,28 @@ string LinuxParser::User(int pid) {
 
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
-      int pos = line.find(":x:") + 3;
-      std::string trimmed = line.substr(pos);
-      int pos2 = trimmed.find(":");
-      
-      int id = std::stoi(trimmed.substr(0,pos2));
+      try{
+          int pos = line.find(":x:") + 3;
+          std::string trimmed = line.substr(pos);
+          int pos2 = trimmed.find(":");
+          
+          int id = std::stoi(trimmed.substr(0,pos2));
 
-      if(id == std::stoi(uid)){
-        int last_letter = line.find(":");
-        username = line.substr(0, last_letter);
-      }     
+          if(id == std::stoi(uid)){
+            int last_letter = line.find(":");
+            return line.substr(0, last_letter);
+
+          }     
+        } catch(const std::exception& e){
+          return "";
+        } 
     }
   }
-  
-  
-  return username;
 }
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::UpTime(int pid) { 
+  vector<std::string> utilization = LinuxParser::StatProcess(pid);
+  return std::stol(utilization.at(19))/sysconf(_SC_CLK_TCK);
+}

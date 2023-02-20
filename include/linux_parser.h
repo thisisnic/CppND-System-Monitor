@@ -25,6 +25,7 @@ long UpTime();
 std::vector<int> Pids();
 int Meminfo(std::string row);
 std::string Stat(std::string row);
+std::vector<std::string> StatProcess(int pid);
 int TotalProcesses();
 int RunningProcesses();
 std::string OperatingSystem();
@@ -44,6 +45,7 @@ enum CPUStates {
   kGuestNice_
 };
 std::vector<std::string> CpuUtilization();
+
 long Jiffies();
 long ActiveJiffies();
 long ActiveJiffies(int pid);
@@ -55,6 +57,8 @@ std::string Ram(int pid);
 std::string Uid(int pid);
 std::string User(int pid);
 long int UpTime(int pid);
+float CpuUtilization(int pid);
+
 };  // namespace LinuxParser
 
 #endif
