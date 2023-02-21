@@ -154,27 +154,31 @@ std::vector<std::string> LinuxParser::StatProcess(int pid){
 
 
 float LinuxParser::CpuUtilization(int pid) {
-  
+  try{
   vector<std::string> utilization = LinuxParser::StatProcess(pid);
 
-  long uptime = LinuxParser::UpTime();
+    long uptime = LinuxParser::UpTime();
 
-// offset by 3 as we don't include the first 3 values
-  long utime = std::stol(utilization.at(10));
-  long stime = std::stol(utilization.at(11));
-  long cutime = std::stol(utilization.at(12));
-  long cstime = std::stol(utilization.at(13));
+  // offset by 3 as we don't include the first 3 values
+    long utime = std::stol(utilization.at(10));
+    long stime = std::stol(utilization.at(11));
+    long cutime = std::stol(utilization.at(12));
+    long cstime = std::stol(utilization.at(13));
 
-  long starttime = std::stol(utilization.at(18));
-  long Hertz = sysconf(_SC_CLK_TCK);
+    long starttime = std::stol(utilization.at(18));
+    long Hertz = sysconf(_SC_CLK_TCK);
 
-  // add total time including child processes
-  long total_time = utime + stime + cutime + cstime;
-  long seconds = uptime - (starttime / Hertz);
+    // add total time including child processes
+    long total_time = utime + stime + cutime + cstime;
+    long seconds = uptime - (starttime / Hertz);
+    
+    float cpu_usage = (float(total_time / Hertz) / seconds);
+
+    return cpu_usage;
+  } catch (const std::exception& e){
+    return 0;
+  }
   
-  float cpu_usage = 100 * ((total_time / Hertz) / seconds);
-
-  return cpu_usage;
 
 }
 
