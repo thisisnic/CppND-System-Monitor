@@ -154,24 +154,24 @@ std::vector<std::string> LinuxParser::StatProcess(int pid){
 
 
 float LinuxParser::CpuUtilization(int pid) {
-  float cpu;
-  string line;
-
+  
   vector<std::string> utilization = LinuxParser::StatProcess(pid);
 
   long uptime = LinuxParser::UpTime();
 
-  long utime = std::stol(utilization.at(14));
-  long stime = std::stol(utilization.at(15));
-  long cutime = std::stol(utilization.at(16));
-  long cstime = std::stol(utilization.at(17));
+// offset by 3 as we don't include the first 3 values
+  long utime = std::stol(utilization.at(10));
+  long stime = std::stol(utilization.at(11));
+  long cutime = std::stol(utilization.at(12));
+  long cstime = std::stol(utilization.at(13));
 
-  long starttime = std::stol(utilization.at(22));
+  long starttime = std::stol(utilization.at(18));
   long Hertz = sysconf(_SC_CLK_TCK);
 
   // add total time including child processes
   long total_time = utime + stime + cutime + cstime;
   long seconds = uptime - (starttime / Hertz);
+  
   float cpu_usage = 100 * ((total_time / Hertz) / seconds);
 
   return cpu_usage;
@@ -316,8 +316,6 @@ string LinuxParser::User(int pid) {
   }
 }
 
-// TODO: Read and return the uptime of a process
-// REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid) { 
   vector<std::string> utilization = LinuxParser::StatProcess(pid);
   return std::stol(utilization.at(19))/sysconf(_SC_CLK_TCK);
