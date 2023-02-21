@@ -13,10 +13,6 @@ using std::set;
 using std::size_t;
 using std::string;
 using std::vector;
-/*You need to complete the mentioned TODOs in order to
- satisfy the rubric criteria "The student will be able to 
- extract and display basic data about the system."
- */
 
 System::System(){
     os_ = LinuxParser::OperatingSystem();
@@ -31,8 +27,6 @@ bool CompareUtilization(Process& a, Process& b){
   return (a.CpuUtilization() > b.CpuUtilization());
 }
 
-
-// TODO: Return a container composed of the system's processes
 vector<Process>& System::Processes() {
     vector<Process> ps;
     vector<int> pids = LinuxParser::Pids();
@@ -43,6 +37,7 @@ vector<Process>& System::Processes() {
 
     sort(ps.begin(), ps.end(), CompareUtilization);
 
+    processes_.clear();
     processes_ = ps;
 
     return processes_;
