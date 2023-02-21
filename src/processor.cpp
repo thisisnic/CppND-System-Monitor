@@ -15,7 +15,7 @@ float Processor::Utilization() {
     
     int new_idle = std::stoi(v.at(3));
 
-    int new_total;
+    int new_total = 0;
     
     for(auto val: v){
         new_total += std::stoi(val);
