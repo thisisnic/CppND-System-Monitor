@@ -264,6 +264,7 @@ string LinuxParser::Ram(int pid) {
       }
     }
   }
+  return "";
 }
 
 // TODO: Read and return the user ID associated with a process
@@ -318,6 +319,7 @@ string LinuxParser::User(int pid) {
         } 
     }
   }
+  return "";
 }
 
 long LinuxParser::UpTime(int pid) { 
